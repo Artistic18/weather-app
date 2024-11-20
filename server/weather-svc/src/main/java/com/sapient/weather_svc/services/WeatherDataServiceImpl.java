@@ -23,7 +23,7 @@ public class WeatherDataServiceImpl implements WeatherDataService {
     @Override
     @Async
     public CompletableFuture<WeatherResponseDTO> getForecastData(String city) {
-        String reqURL = "http://localhost:8081/data/cache/weather?city=" + city;
+        String reqURL = "http://54.175.96.105:8081/data/cache/weather?city=" + city;
 
         WeatherResponseDTO response = restTemplate.getForObject(reqURL, WeatherResponseDTO.class);
 
