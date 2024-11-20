@@ -26,12 +26,15 @@ export default function Home() {
       <div className="flex">
         <div className="weather-container__summary flex flex-col p-5 basis-1/6 h-screen">
           <SearchBox />
-          <LocationDetails data={weatherData} />
-          <TemperatureDetails data={weatherData.list[0]} />
+          <LocationDetails weatherData={weatherData} />
+          <TemperatureDetails
+            weatherData={weatherData.list[0]}
+            cityData={weatherData.city}
+          />
         </div>
         <div className="weather-container__details basis-5/6">
-          <WeatherDescription />
-          <WeatherCarousel />
+          <WeatherDescription weatherData={weatherData} />
+          <WeatherCarousel weatherData={weatherData} />
         </div>
       </div>
     </div>

@@ -1,14 +1,20 @@
 import React from "react";
 import "../../styles/style.scss";
 
-const TemperatureDetails = () => {
+const TemperatureDetails = ({ weatherData, cityData }) => {
+  console.log("hrishit", weatherData, cityData);
+  const { main, visibility, wind } = weatherData;
+  const { sunrise, sunset } = cityData;
+
   return (
     <div className="weather-container__temperature flex flex-col justify-center">
       <div className="flex flex-row items-center gap-5">
-        <span className="weather-container__temperature-value">18°</span>
+        <span className="weather-container__temperature-value">
+          {main.temp.toFixed(0)}°
+        </span>
         <div className="flex flex-col">
-          <span>Max: 20°</span>
-          <span>Min: 16°</span>
+          <span>Max: {main.temp_max.toFixed(0)}°</span>
+          <span>Min: {main.temp_min.toFixed(0)}°</span>
         </div>
       </div>
       <div className="flex flex-row gap-12 ml-3">
@@ -31,7 +37,7 @@ const TemperatureDetails = () => {
             </svg>
             <span>Feels Like</span>
           </div>
-          <span className="text-3xl">20°</span>
+          <span className="text-3xl">{main.feels_like.toFixed(0)}°</span>
         </div>
         <div className="flex flex-col">
           <div className="flex flex-row items-center gap-1">
@@ -52,7 +58,7 @@ const TemperatureDetails = () => {
             </svg>
             <span>Humidity</span>
           </div>
-          <span className="text-3xl">83%</span>
+          <span className="text-3xl">{main.humidity}%</span>
         </div>
       </div>
       <div className="flex flex-col ml-3 mt-3">
@@ -74,7 +80,7 @@ const TemperatureDetails = () => {
           </svg>
           <span>Pressure</span>
         </div>
-        <span className="text-3xl">1010 hPa</span>
+        <span className="text-3xl">{main.pressure} hPa</span>
       </div>
       <div className="flex flex-col ml-3 mt-3">
         <div className="flex flex-row gap-1 items-center">
@@ -96,13 +102,15 @@ const TemperatureDetails = () => {
           <span>Wind</span>
         </div>
         <span className="text-3xl">
-          4 km/h <span className="text-sm">speed</span>
+          {(wind.speed * 3.6).toFixed(0)} km/h{" "}
+          <span className="text-sm">speed</span>
         </span>
         <span className="text-3xl">
-          6 km/h <span className="text-sm">gust</span>
+          {(wind.gust * 3.6).toFixed(0)} km/h{" "}
+          <span className="text-sm">gust</span>
         </span>
         <span className="text-3xl">
-          36° <span className="text-sm">direction</span>
+          {wind.deg}° <span className="text-sm">direction</span>
         </span>
       </div>
       <div className="flex flex-col mt-3 ml-3">
@@ -131,7 +139,7 @@ const TemperatureDetails = () => {
           </svg>
           <span>Visibility</span>
         </div>
-        <span className="text-3xl">10 Km</span>
+        <span className="text-3xl">{(visibility / 1000).toFixed(0)} Km</span>
       </div>
       <div className="flex flex-col mt-3 ml-3">
         <div className="flex flex-row gap-1">
@@ -152,7 +160,13 @@ const TemperatureDetails = () => {
           </svg>
           <span>Sunrise</span>
         </div>
-        <span className="text-2xl">5:00 AM</span>
+        <span className="text-2xl">
+          {new Date(sunrise * 1000).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          })}
+        </span>
       </div>
       <div className="flex flex-col mt-3 ml-3">
         <div className="flex flex-row gap-1">
@@ -173,7 +187,13 @@ const TemperatureDetails = () => {
           </svg>
           <span>Sunset</span>
         </div>
-        <span className="text-2xl">6:00 PM</span>
+        <span className="text-2xl">
+          {new Date(sunset * 1000).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          })}
+        </span>
       </div>
     </div>
   );

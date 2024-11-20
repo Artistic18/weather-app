@@ -1,11 +1,14 @@
 import React from "react";
 import { SVGMap } from "@/helper/helper";
 
-const WeatherDescription = () => {
+const WeatherDescription = ({ weatherData }) => {
+  let description = weatherData.list[0].weather[0].description;
+  description = description.charAt(0).toUpperCase() + description.slice(1);
+
   return (
     <div className="weather-description flex flex-col justify-center">
       <h1 className="weather-description__header">Weather Forecast</h1>
-      <p className="weather-description__text text-7xl">Cloudy Sky</p>
+      <p className="weather-description__text text-7xl">{description}</p>
       <div className="flex flex-row mt-4 gap-2">
         <svg
           width="25px"

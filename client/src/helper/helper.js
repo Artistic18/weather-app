@@ -1,6 +1,6 @@
 export const SVGMap = [
   {
-    title: "moderate rain",
+    title: "Rain",
     id: 1,
     element: (
       <svg
@@ -21,7 +21,7 @@ export const SVGMap = [
     ),
   },
   {
-    title: "light rain",
+    title: "Drizzle",
     id: 2,
     element: (
       <svg
@@ -42,29 +42,8 @@ export const SVGMap = [
     ),
   },
   {
-    title: "heavy rain",
+    title: "Snow",
     id: 3,
-    element: (
-      <svg
-        width="100%"
-        height="100%"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M20 15.2422C21.206 14.435 22 13.0602 22 11.5C22 9.15643 20.2085 7.23129 17.9203 7.01937C17.4522 4.17213 14.9798 2 12 2C9.02024 2 6.54781 4.17213 6.07974 7.01937C3.79151 7.23129 2 9.15643 2 11.5C2 13.0602 2.79401 14.435 4 15.2422M12.25 15L9.44995 22M17.05 13L14.25 20M9.05 13L6.25 20"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "snow",
-    id: 4,
     element: (
       <svg
         width="100%"
@@ -84,50 +63,8 @@ export const SVGMap = [
     ),
   },
   {
-    title: "partly cloudy",
-    id: 5,
-    element: (
-      <svg
-        width="100%"
-        height="100%"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M3.15003 11C3.05165 10.5153 3 10.0137 3 9.5C3 5.35786 6.35786 2 10.5 2C14.3031 2 17.445 4.83064 17.9339 8.5M6 22C3.79086 22 2 20.2091 2 18C2 15.7909 3.79086 14 6 14C6.11333 14 6.22556 14.0047 6.3365 14.014C7.15622 11.6763 9.38235 10 12 10C14.2248 10 16.1668 11.2109 17.2029 13.0097C17.3011 13.0033 17.4002 13 17.5 13C19.9853 13 22 15.0147 22 17.5C22 19.9853 19.9853 22 17.5 22C13.7633 22 10.0546 22 6 22Z"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "partly cloudy night",
-    id: 6,
-    element: (
-      <svg
-        width="100%"
-        height="100%"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M16.5 13C19.0768 13 21.2397 11.228 21.8366 8.83604C21.4087 8.94287 20.961 8.99958 20.5 8.99958C17.4624 8.99958 15 6.53715 15 3.49958C15 3.03881 15.0567 2.59128 15.1634 2.16357C12.7717 2.76068 11 4.92345 11 7.50003C11 8.41275 11.2223 9.27355 11.6158 10.0312M5 7V3M3 5H7M6 22C3.79086 22 2 20.2091 2 18C2 16.0221 3.43551 14.3796 5.32148 14.0573C6.12876 11.697 8.3662 10 11 10C13.2882 10 15.2772 11.2809 16.2892 13.1648C16.6744 13.0574 17.0805 13 17.5 13C19.9853 13 22 15.0147 22 17.5C22 19.9853 19.9853 22 17.5 22C13.6667 22 9.83333 22 6 22Z"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "lightning",
-    id: 7,
+    title: "Thunderstorm",
+    id: 4,
     element: (
       <svg
         width="100%"
@@ -147,8 +84,8 @@ export const SVGMap = [
     ),
   },
   {
-    title: "cloudy",
-    id: 8,
+    title: "Clouds",
+    id: 5,
     element: (
       <svg
         width="100%"
@@ -168,8 +105,8 @@ export const SVGMap = [
     ),
   },
   {
-    title: "clear",
-    id: 9,
+    title: "Clear",
+    id: 6,
     element: (
       <svg
         width="100%"
@@ -189,8 +126,8 @@ export const SVGMap = [
     ),
   },
   {
-    title: "clear night",
-    id: 10,
+    title: "Mist",
+    id: 7,
     element: (
       <svg
         width="100%"
@@ -200,14 +137,49 @@ export const SVGMap = [
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          d="M18 2L18.6178 3.23558C18.8833 3.76656 19.016 4.03205 19.1934 4.26211C19.3507 4.46626 19.5337 4.64927 19.7379 4.80664C19.9679 4.98397 20.2334 5.11672 20.7644 5.38221L22 6L20.7644 6.61779C20.2334 6.88328 19.9679 7.01603 19.7379 7.19336C19.5337 7.35073 19.3507 7.53374 19.1934 7.73789C19.016 7.96795 18.8833 8.23344 18.6178 8.76442L18 10L17.3822 8.76442C17.1167 8.23344 16.984 7.96795 16.8066 7.73789C16.6493 7.53374 16.4663 7.35073 16.2621 7.19336C16.0321 7.01603 15.7666 6.88328 15.2356 6.61779L14 6L15.2356 5.38221C15.7666 5.11672 16.0321 4.98397 16.2621 4.80664C16.4663 4.64927 16.6493 4.46626 16.8066 4.26211C16.984 4.03205 17.1167 3.76656 17.3822 3.23558L18 2Z"
+          d="M2 18H22M2 12H22M2 6H22"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+      </svg>
+    ),
+  },
+  {
+    title: "Fog",
+    id: 8,
+    element: (
+      <svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path
-          d="M21 13.3893C19.689 15.689 17.2145 17.2395 14.3779 17.2395C10.1711 17.2395 6.76075 13.8292 6.76075 9.62233C6.76075 6.78554 8.31149 4.31094 10.6115 3C5.77979 3.45812 2 7.52692 2 12.4785C2 17.7371 6.26292 22 11.5215 22C16.4729 22 20.5415 18.2206 21 13.3893Z"
+          d="M2 18H22M2 12H22M2 6H22"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    title: "Haze",
+    id: 9,
+    element: (
+      <svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2 18H22M2 12H22M2 6H22"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
@@ -217,3 +189,11 @@ export const SVGMap = [
     ),
   },
 ];
+
+export const getSVGElementByTitle = (title) => {
+  const weatherIcon = SVGMap.find(
+    (icon) => icon.title.toLowerCase() === title.toLowerCase()
+  );
+
+  return weatherIcon ? weatherIcon.element : null;
+};

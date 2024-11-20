@@ -1,21 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { SVGMap } from "@/helper/helper";
+import { getSVGElementByTitle } from "@/helper/helper";
 
-const WeatherCarousel = () => {
-  const temperatures = [
-    { time: "18:00", high: 20, low: 18 },
-    { time: "21:00", high: 20, low: 17 },
-    { time: "00:00", high: 19, low: 17 },
-    { time: "3:00", high: 18, low: 17 },
-    { time: "6:00", high: 20, low: 18 },
-    { time: "9:00", high: 21, low: 18 },
-    { time: "12:00", high: 21, low: 17 },
-    { time: "15:00", high: 17, low: 17 },
-    { time: "18:00", high: 19, low: 17 },
-  ];
-
-  const visibleTemperatures = temperatures.slice(0, 5 + 5);
+const WeatherCarousel = ({ weatherData }) => {
+  const { list } = weatherData;
+  const visibleTemperatures = list.slice(0, 5 + 5);
 
   const parentRef = useRef(null);
   const scrollAmountRef = useRef(0);
@@ -81,13 +70,23 @@ const WeatherCarousel = () => {
       <div className="weather-carousel__scroll-container" ref={parentRef}>
         <div className="weather-carousel__timestamps flex gap-3 w-full overflow-x-auto whitespace-nowrap justify-around">
           {visibleTemperatures.map((temperature, idx) => {
+            const { dt, main, weather } = temperature;
+            const { temp_max, temp_min } = main;
             return (
-              <div className="flex flex-row mt-4 gap-2 items-center" key={idx}>
-                <div className="h-8 w-8">{SVGMap[idx + 1].element}</div>
+              <div className="flex flex-row mt-4 gap-2 items-center" key={dt}>
+                <div className="h-8 w-8">
+                  {getSVGElementByTitle(weather[0].main)}
+                </div>
                 <div className="flex flex-col">
-                  <span>{temperature.time}</span>
-                  <span>H - {temperature.high}°</span>
-                  <span>L - {temperature.low}°</span>
+                  <span>
+                    {new Date(dt * 1000).toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}
+                  </span>
+                  <span>H - {temp_max.toFixed(0)}°</span>
+                  <span>L - {temp_min.toFixed(0)}°</span>
                 </div>
               </div>
             );
