@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     environment {
+        AWS_REGION = 'us-east-1'              
+        ECR_REPO_NAME = 'sapient/weather-repo'          
+        IMAGE_TAG = "weather-cache-latest"                   
+        CLUSTER_NAME = 'my-ecs-cluster'        
+        SERVICE_NAME = 'my-ecs-service'        
+        AWS_ACCOUNT_ID = '127577525529'
         JAVA_HOME = '/usr/lib/jvm/java-21-amazon-corretto'
         PATH = "${JAVA_HOME}/bin:${env.PATH}"      
     }
@@ -29,42 +35,40 @@ pipeline {
             }
         }
 
-    //     stage('Build Docker Image') {
-    //         steps {
-    //             script {
-    //                 // Change directory to where the Dockerfile is (server/weather-cache-service)
-    //                 dir('server/weather-cache-service') {
-    //                     // Build Docker image and tag it
-    //                     sh """
-    //                     docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} .
-    //                     """
-    //                 }
-    //             }
-    //         }
-    //     }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dir('server/weather-cache-service') {
+                        sh """
+                        docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} .
+                        """
+                    }
+                }
+            }
+        }
 
-    //     stage('Login to Amazon ECR') {
-    //         steps {
-    //             script {
-    //                 // Login to AWS ECR (requires AWS CLI configured with IAM permissions)
-    //                 sh """
-    //                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-    //                 """
-    //             }
-    //         }
-    //     }
+        stage('Login to Amazon ECR') {
+            steps {
+                script {
+                    // Login to AWS ECR (requires AWS CLI configured with IAM permissions)
+                    sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    """
+                }
+            }
+        }
 
-    //     stage('Push to ECR') {
-    //         steps {
-    //             script {
-    //                 // Push the Docker image to ECR
-    //                 sh """
-    //                 docker tag ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
-    //                 docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
-    //                 """
-    //             }
-    //         }
-    //     }
+        stage('Push to ECR') {
+            steps {
+                script {
+                    // Push the Docker image to ECR
+                    sh """
+                    docker tag ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
 
         // stage('Deploy to ECS') {
         //     steps {
