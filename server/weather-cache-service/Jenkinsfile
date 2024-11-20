@@ -102,13 +102,22 @@ pipeline {
                 script {
                     sshagent(credentials: ['ec2-ssh-key']) {
                         sh """
-                            # Stop the container if it's already running on port 8081
-                            ssh ${EC2_USER}@${EC2_IP} 'docker ps -q -f "ancestor=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}" | xargs -r docker stop'
-
-                            # Authenticate Docker to Amazon ECR on the EC2 instance
+                            # Stop and remove any container using port 8081
+                            ssh ${EC2_USER}@${EC2_IP} '
+                                container_id=\$(docker ps -q -f "publish=8081")
+                                if [ -n "\$container_id" ]; then
+                                    echo "Stopping and removing container running on port 8081..."
+                                    docker stop \$container_id
+                                    docker rm \$container_id
+                                else
+                                    echo "No container running on port 8081"
+                                fi
+                            '
+                            
+                            # Pull the latest image from ECR
                             aws ecr get-login-password --region ${AWS_REGION} | ssh ${EC2_USER}@${EC2_IP} 'docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
 
-                            # Pull the Docker image from ECR
+                            # Pull the Docker image and run it on port 8081
                             ssh ${EC2_USER}@${EC2_IP} '
                                 docker pull ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} && \
                                 docker run -d -p 8081:8081 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
