@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_REGION = 'us-east-1'              
         ECR_REPO_NAME = 'sapient/weather-repo'          
-        IMAGE_TAG = "weather-cache-latest"                   
+        IMAGE_TAG = "weather-svc-latest"                   
         EC2_IP = '54.175.96.105' 
         EC2_USER = 'ec2-user'      
         AWS_ACCOUNT_ID = '127577525529'
@@ -28,9 +28,9 @@ pipeline {
        stage('Build Project') {
             steps {
                 script {
-                    dir('server/weather-cache-service') {
+                    dir('server/weather-svc') {
                         sh """
-                        echo "Running Maven build in server/weather-cache-service"
+                        echo "Running Maven build in server/weather-svc"
                         mvn clean install
                         """
                     }
@@ -41,7 +41,7 @@ pipeline {
         stage('Verify Target Directory') {
             steps {
                 script {
-                    dir('server/weather-cache-service') {
+                    dir('server/weather-svc') {
                         sh """
                         echo "Verifying target directory..."
                         ls -l target || echo "ERROR: Target directory or JAR file not found!"
@@ -54,10 +54,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    dir('server/weather-cache-service') { 
+                    dir('server/weather-svc-service') { 
                         sh """
                         # Verify the JAR file exists
-                        if [ ! -f target/weather-cache-service-0.0.1-SNAPSHOT.jar ]; then
+                        if [ ! -f target/weather-svc-service-0.0.1-SNAPSHOT.jar ]; then
                             echo "ERROR: JAR file not found in the target directory!"
                             exit 1
                         fi
