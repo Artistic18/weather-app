@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1'              
-        ECR_REPO_NAME = 'sapient/weather-repo'          
-        IMAGE_TAG = "weather-cache-latest"                   
-        EC2_IP = '54.175.96.105' 
-        EC2_USER = 'ec2-user'      
-        AWS_ACCOUNT_ID = '127577525529'
-        JAVA_HOME = '/usr/lib/jvm/java-21-amazon-corretto'
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"      
+        AWS_REGION = 'us-east-1'               // AWS region for ECR and EC2
+        ECR_REPO_NAME = 'sapient/weather-repo'  // ECR repository name
+        IMAGE_TAG = "weather-cache-latest"      // Docker image tag
+        EC2_IP = '54.175.96.105'               // EC2 instance IP
+        EC2_USER = 'ec2-user'                  // EC2 instance user
+        AWS_ACCOUNT_ID = '127577525529'        // AWS account ID
+        JAVA_HOME = '/usr/lib/jvm/java-21-amazon-corretto'  // Java Home path
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"  // Update PATH for Java
     }
 
     stages {
@@ -25,7 +25,7 @@ pipeline {
             }
         }
 
-       stage('Build Project') {
+        stage('Build Project') {
             steps {
                 script {
                     dir('server/weather-cache-service') {
@@ -51,6 +51,19 @@ pipeline {
             }
         }
 
+        stage('Login to Amazon ECR') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'aws-credentials', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh """
+                        # AWS CLI login to ECR
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                        """
+                    }
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -70,14 +83,33 @@ pipeline {
             }
         }
 
+        stage('Push to ECR') {
+            steps {
+                script {
+                    // Push the Docker image to ECR directly
+                    sh """
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
         stage('Deploy to EC2') {
             steps {
                 script {
                     sshagent(credentials: ['ec2-ssh-key']) {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} "
+                                # Stop any existing Docker containers (optional)
+                                docker ps -q -f 'name=weather-cache' | xargs -r docker stop && docker rm $(docker ps -q -f 'name=weather-cache')
+
+                                # Pull the latest Docker image from ECR
+                                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com && \
+                                
                                 docker pull ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} && \
-                                docker run -d -p 8081:8081 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+                                
+                                # Run the Docker container
+                                docker run -d -p 8081:8081 --name weather-cache ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
                             "
                         """
                     }
