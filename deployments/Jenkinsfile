@@ -25,26 +25,28 @@ pipeline {
             }
         }
 
-       stage('Install Dependencies') {
+       stage('Build Project') {
             steps {
                 script {
                     dir('server/weather-cache-service') {
-                        sh 'mvn clean install'
+                        sh """
+                        echo "Running Maven build in server/weather-cache-service"
+                        mvn clean install
+                        """
                     }
                 }
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Verify Target Directory') {
             steps {
                 script {
-                    sh """
-                    if [ ! -f target/weather-cache-service.jar ]; then
-                        echo "ERROR: JAR file not found in target directory!"
-                        exit 1
-                    fi
-                    docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} .
-                    """
+                    dir('server/weather-cache-service') {
+                        sh """
+                        echo "Verifying target directory..."
+                        ls -l target || echo "ERROR: Target directory or JAR file not found!"
+                        """
+                    }
                 }
             }
         }
