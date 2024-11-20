@@ -102,6 +102,9 @@ pipeline {
                 script {
                     sshagent(credentials: ['ec2-ssh-key']) {
                         sh """
+                            # Stop the container if it's already running on port 8081
+                            ssh ${EC2_USER}@${EC2_IP} 'docker ps -q -f "ancestor=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}" | xargs -r docker stop'
+
                             # Authenticate Docker to Amazon ECR on the EC2 instance
                             aws ecr get-login-password --region ${AWS_REGION} | ssh ${EC2_USER}@${EC2_IP} 'docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
 
