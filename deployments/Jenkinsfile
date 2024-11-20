@@ -2,12 +2,8 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1'              
-        ECR_REPO_NAME = 'sapient/weather-repo'          
-        IMAGE_TAG = "weather-cache-latest"                   
-        CLUSTER_NAME = 'my-ecs-cluster'        
-        SERVICE_NAME = 'my-ecs-service'        
-        AWS_ACCOUNT_ID = '127577525529'      
+        JAVA_HOME = '/usr/lib/jvm/java-21-amazon-corretto'
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"      
     }
 
     stages {
