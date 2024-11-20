@@ -17,54 +17,54 @@ pipeline {
             }
         }
 
-       stage('Install Dependencies') {
-            steps {
-                script {
-                    // Change directory to where your Java app is located
-                    dir('server/weather-cache-service') {
-                        // Run Maven build command (or Gradle if you're using that)
-                        sh 'mvn clean install'
-                    }
-                }
-            }
-        }
+    //    stage('Install Dependencies') {
+    //         steps {
+    //             script {
+    //                 // Change directory to where your Java app is located
+    //                 dir('server/weather-cache-service') {
+    //                     // Run Maven build command (or Gradle if you're using that)
+    //                     sh 'mvn clean install'
+    //                 }
+    //             }
+    //         }
+    //     }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    // Change directory to where the Dockerfile is (server/weather-cache-service)
-                    dir('server/weather-cache-service') {
-                        // Build Docker image and tag it
-                        sh """
-                        docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} .
-                        """
-                    }
-                }
-            }
-        }
+    //     stage('Build Docker Image') {
+    //         steps {
+    //             script {
+    //                 // Change directory to where the Dockerfile is (server/weather-cache-service)
+    //                 dir('server/weather-cache-service') {
+    //                     // Build Docker image and tag it
+    //                     sh """
+    //                     docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} .
+    //                     """
+    //                 }
+    //             }
+    //         }
+    //     }
 
-        stage('Login to Amazon ECR') {
-            steps {
-                script {
-                    // Login to AWS ECR (requires AWS CLI configured with IAM permissions)
-                    sh """
-                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-                    """
-                }
-            }
-        }
+    //     stage('Login to Amazon ECR') {
+    //         steps {
+    //             script {
+    //                 // Login to AWS ECR (requires AWS CLI configured with IAM permissions)
+    //                 sh """
+    //                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+    //                 """
+    //             }
+    //         }
+    //     }
 
-        stage('Push to ECR') {
-            steps {
-                script {
-                    // Push the Docker image to ECR
-                    sh """
-                    docker tag ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
-                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
-                    """
-                }
-            }
-        }
+    //     stage('Push to ECR') {
+    //         steps {
+    //             script {
+    //                 // Push the Docker image to ECR
+    //                 sh """
+    //                 docker tag ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+    //                 docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+    //                 """
+    //             }
+    //         }
+    //     }
 
         // stage('Deploy to ECS') {
         //     steps {
