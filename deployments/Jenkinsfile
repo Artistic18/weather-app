@@ -13,17 +13,11 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Pull the code from Git
                 git branch: 'release', url: 'https://github.com/Artistic18/weather-app.git'
             }
         }
 
        stage('Install Dependencies') {
-            agent {
-                docker {
-                    image 'maven:3.9.0-openjdk-21'
-                }
-            }
             steps {
                 script {
                     // Change directory to where your Java app is located
