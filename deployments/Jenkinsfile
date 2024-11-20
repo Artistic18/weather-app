@@ -102,10 +102,14 @@ pipeline {
                 script {
                     sshagent(credentials: ['ec2-ssh-key']) {
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} "\
+                            # Authenticate Docker to Amazon ECR on the EC2 instance
+                            aws ecr get-login-password --region ${AWS_REGION} | ssh ${EC2_USER}@${EC2_IP} 'docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
+
+                            # Pull the Docker image from ECR
+                            ssh ${EC2_USER}@${EC2_IP} '
                                 docker pull ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} && \
-                                docker run -d -p 8081:8081 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}\
-                            "
+                                docker run -d -p 8081:8081 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+                            '
                         """
                     }
                 }
