@@ -41,7 +41,7 @@ public class WeatherDataServiceImpl implements WeatherDataService {
     }
 
     public CompletableFuture<WeatherResponseDTO> fallbackForWeatherData(String city, Throwable t) {
-        String openWeatherApiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + weatherAPIConfig.getKey() + "&cnt=" + weatherAPIConfig.getCount();
+        String openWeatherApiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + weatherAPIConfig.getKey() + "&cnt=" + weatherAPIConfig.getCount() + "&units=metric";
         
         WeatherResponseDTO fallbackResponse = restTemplate.getForObject(openWeatherApiUrl, WeatherResponseDTO.class);
         

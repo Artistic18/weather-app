@@ -1,15 +1,33 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import "../../styles/style.scss";
+import { useWeather } from "@/contexts/WeatherContext";
 
 const SearchBox = () => {
+  const { setCity } = useWeather();
+  const [cityInput, setCityInput] = useState("");
+
+  const handleInputChange = (event) => {
+    setCityInput(event.target.value);
+  };
+
+  const handleSearch = () => {
+    if (cityInput) {
+      setCity(cityInput);
+    }
+  };
+
   return (
     <div className="weather-container__search-wrapper">
       <input
         className="weather-container__search"
         type="text"
+        value={cityInput}
+        onChange={handleInputChange}
         placeholder="Search a city"
-      ></input>
+      />
       <svg
+        onClick={handleSearch}
         className="weather-container__search-icon"
         width="20px"
         height="20px"

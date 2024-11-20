@@ -1,7 +1,7 @@
 import React from "react";
 import "../../styles/style.scss";
 
-const LocationDetails = () => {
+const LocationDetails = ({ data }) => {
   return (
     <div className="weather-container__location-box flex flex-col">
       <div className="flex flex-row items-center gap-2">
@@ -27,7 +27,9 @@ const LocationDetails = () => {
             strokeLinejoin="round"
           />
         </svg>
-        <span className="weather-container__location-name">Chinsurah, IN</span>
+        <span className="weather-container__location-name">
+          {data.city.name}, {data.city.country}
+        </span>
       </div>
       <span className="weather-container__location-date">
         (Friday, November 14)
