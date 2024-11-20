@@ -1,86 +1,77 @@
 package com.sapient.weather_cache_service.services;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.sapient.weather_cache_service.config.ApiConfig;
-import com.sapient.weather_cache_service.exceptions.CacheServiceException;
 import com.sapient.weather_cache_service.exceptions.WeatherDataFetchException;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
 public class WeatherCacheServiceImpl implements WeatherCacheService {
-    
+
     private final StringRedisTemplate redisTemplate;
-    private final RestTemplate restTemplate;
+    private final WebClient webClient;
     private final ApiConfig apiConfig;
 
     private static final long cacheTTL = 15;
     private static final long max_cities_to_cache = 50;
 
-    public WeatherCacheServiceImpl(StringRedisTemplate redisTemplate, RestTemplate restTemplate, ApiConfig apiConfig) {
+    public WeatherCacheServiceImpl(StringRedisTemplate redisTemplate, WebClient webClient, ApiConfig apiConfig) {
         this.redisTemplate = redisTemplate;
-        this.restTemplate = restTemplate;
+        this.webClient = webClient;
         this.apiConfig = apiConfig;
     }
 
     @Override
     @Scheduled(fixedRate = 15 * 60 * 1000)
     @CircuitBreaker(name = "weather-api", fallbackMethod = "fetchWeatherDataFallback")
-    public void fetchAndCacheWeatherData() {
+    public Mono<Void> fetchAndCacheWeatherData() {
         Set<String> topCities = getTopAccessedCities();
-    
-        int apiCallCount = 0;
         final int MAX_CALLS_PER_MINUTE = 60;
-    
+        AtomicInteger apiCallCount = new AtomicInteger(0);
+
+        List<Mono<Void>> cityFetchMonos = new ArrayList<>();
+
         for (String city : topCities) {
-            if (apiCallCount >= MAX_CALLS_PER_MINUTE) {
-                try {
-                    log.info("API call limit reached. Pausing for 1 minute...");
-                    Thread.sleep(60L * 1000);
-                    apiCallCount = 0;
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new CacheServiceException("Rate limiter sleep interrupted", e);
-                }
-            }
-    
-            String url = String.format("%s?q=%s&appid=%s&cnt=24", apiConfig.getUrl(), city, apiConfig.getKey());
-    
-            try {
-                String weatherData = restTemplate.getForObject(url, String.class);
-    
-                if (weatherData != null) {
-                    redisTemplate.opsForValue().set("weatherData:" + city, weatherData, cacheTTL, TimeUnit.MINUTES);
-                    log.info("Weather data cached successfully for " + city);
-                } else {
-                    throw new WeatherDataFetchException("Received null response from OpenWeather API for city: " + city);
-                }
-    
-                apiCallCount++;
-    
-            } catch (RestClientException e) {
-                log.error("Failed to fetch data for city: " + city, e);
-                throw new WeatherDataFetchException("Failed to fetch data from OpenWeather API for city: " + city, e);
-    
-            } catch (CacheServiceException e) {
-                log.error("Failed to cache data for city: " + city, e);
-                throw new CacheServiceException("Error while caching weather data for city: " + city, e);
-    
-            } catch (Exception e) {
-                log.error("Unexpected error during fetch and cache for city: " + city, e);
-                throw new CacheServiceException("Unexpected error during fetch and cache for city: " + city, e);
+            if (apiCallCount.get() >= MAX_CALLS_PER_MINUTE) {
+                log.info("API call limit reached. Pausing for 1 minute...");
+                cityFetchMonos.add(Mono.delay(Duration.ofMinutes(1))
+                        .then(Mono.fromRunnable(() -> fetchAndCacheCityData(city, apiCallCount))));
+                apiCallCount.set(0);
+            } else {
+                cityFetchMonos.add(Mono.fromRunnable(() -> fetchAndCacheCityData(city, apiCallCount)));
             }
         }
+
+        return Mono.when(cityFetchMonos);
+    }
+
+    private void fetchAndCacheCityData(String city, AtomicInteger apiCallCount) {
+        fetchAndCacheSingleCityData(city)
+                .doOnTerminate(() -> apiCallCount.incrementAndGet())  
+                .onErrorResume(ex -> {
+                    log.error("Error occurred while fetching and caching weather data for city: " + city, ex);
+                    return Mono.empty();  
+                })
+                .subscribe(
+                    data -> log.info("Successfully fetched and cached data for city: " + city),
+                    error -> log.error("Error occurred during subscribe: ", error) 
+                );
     }
 
     private Set<String> getTopAccessedCities() {
@@ -95,32 +86,36 @@ public class WeatherCacheServiceImpl implements WeatherCacheService {
     }
 
     @Override
-    public String getCachedWeatherData(String city) {
+    public Mono<String> getCachedWeatherData(String city) {
         log.info("Requested cached data from Redis for city: " + city);
         trackCityAccess(city);
         String cachedData = redisTemplate.opsForValue().get("weatherData:" + city);
+
         if (cachedData == null) {
             log.info("Cache miss for city: " + city + ". Fetching from OpenWeather API...");
             return fetchAndCacheSingleCityData(city);
         }
-        return cachedData;
+
+        return Mono.just(cachedData);
     }
 
-    private String fetchAndCacheSingleCityData(String city) {
-        String url = String.format("%s?q=%s&appid=%s&cnt=24", apiConfig.getUrl(), city, apiConfig.getKey());
-        try {
-            String weatherData = restTemplate.getForObject(url, String.class);
+    private Mono<String> fetchAndCacheSingleCityData(String city) {
+        String url = String.format("/data/2.5/forecast?q=%s&appid=%s&cnt=24", city, apiConfig.getKey());
 
-            if (weatherData != null) {
-                redisTemplate.opsForValue().set("weatherData:" + city, weatherData, cacheTTL, TimeUnit.MINUTES);
-                trackCityAccess(city);
-                return weatherData;
-            } else {
-                throw new WeatherDataFetchException("Received null response for city: " + city);
-            }
-        } catch (RestClientException e) {
-            throw new WeatherDataFetchException("Failed to fetch data for city: " + city, e);
-        }
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnTerminate(() -> trackCityAccess(city))
+                .flatMap(weatherData -> {
+                    if (weatherData != null) {
+                        redisTemplate.opsForValue().set("weatherData:" + city, weatherData, cacheTTL, TimeUnit.MINUTES);
+                        return Mono.just(weatherData);
+                    } else {
+                        return Mono.error(new WeatherDataFetchException("Received null response for city: " + city));
+                    }
+                })
+                .onErrorMap(RestClientException.class, e -> new WeatherDataFetchException("Failed to fetch data for city: " + city, e));
     }
 
     public String fetchWeatherDataFallback(String city, Throwable throwable) {
