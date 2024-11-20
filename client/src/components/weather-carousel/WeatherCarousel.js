@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { SVGMap } from "@/helper/helper";
 
 const WeatherCarousel = () => {
@@ -18,20 +18,23 @@ const WeatherCarousel = () => {
   const visibleTemperatures = temperatures.slice(0, 5 + 5);
 
   const parentRef = useRef(null);
+  const scrollAmountRef = useRef(0);
+
   const [isMouseOver, setIsMouseOver] = useState(false);
 
-  let scrollAmount = 0;
+  const handleWheel = useCallback(
+    (e) => {
+      if (!isMouseOver || !parentRef.current) return;
 
-  const handleWheel = (e) => {
-    if (!isMouseOver || !parentRef.current) return;
+      e.preventDefault();
 
-    e.preventDefault();
+      const delta = e.deltaY;
+      scrollAmountRef.current += delta > 0 ? 50 : -50;
 
-    const delta = e.deltaY;
-    scrollAmount += delta > 0 ? 50 : -50;
-
-    animateScroll(scrollAmount);
-  };
+      animateScroll(scrollAmountRef.current);
+    },
+    [isMouseOver]
+  );
 
   const animateScroll = (scrollValue) => {
     const parent = parentRef.current;
@@ -70,7 +73,7 @@ const WeatherCarousel = () => {
         parent.removeEventListener("wheel", handleWheel);
       }
     };
-  }, [isMouseOver]);
+  }, [handleWheel]);
 
   return (
     <div className="weather-carousel w-full">
@@ -101,17 +104,9 @@ const WeatherCarousel = () => {
         >
           <path
             id="wavePath"
-            d="
-          M0,50
-          C75,10 125,90 200,50
-          C275,10 325,90 400,50
-          C475,10 525,90 600,50
-          C675,10 725,90 800,50
-          C875,10 925,90 1000,50
-          C1075,10 1125,90 1200,50 
-        "
+            d="M0,50 C75,10 125,90 200,50 C275,10 325,90 400,50 C475,10 525,90 600,50 C675,10 725,90 800,50 C875,10 925,90 1000,50 C1075,10 1125,90 1200,50"
             style={{
-              stroke: "#FFFFFF", // White color
+              stroke: "#FFFFFF",
               fill: "none",
               strokeWidth: 2,
             }}

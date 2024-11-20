@@ -22,7 +22,9 @@ const WeatherDescription = () => {
             strokeLinejoin="round"
           />
         </svg>
-        <p>There's a 91% chance of precipitation. Please carry an umbrella.</p>
+        <p>
+          There&apos;s a 91% chance of precipitation. Please carry an umbrella.
+        </p>
       </div>
       <div className="three-day-weather flex flex-col">
         <span className="text-lg">Upcoming Weather</span>
