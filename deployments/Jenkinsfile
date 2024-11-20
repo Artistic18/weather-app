@@ -50,6 +50,25 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dir('server/weather-cache-service') { // Navigate to the service directory
+                        sh """
+                        # Verify the JAR file exists
+                        if [ ! -f target/weather-cache-service-0.0.1-SNAPSHOT.jar ]; then
+                            echo "ERROR: JAR file not found in the target directory!"
+                            exit 1
+                        fi
+
+                        # Build the Docker image
+                        docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} .
+                        """
+                    }
+                }
+            }
+        }
         // stage('Login to Amazon ECR') {
         //     steps {
         //         script {
