@@ -17,12 +17,16 @@ pipeline {
             }
         }
 
+        stage('Check Maven Version') {
+            steps {
+                sh 'mvn -v'
+            }
+        }
+
        stage('Install Dependencies') {
             steps {
                 script {
-                    // Change directory to where your Java app is located
                     dir('server/weather-cache-service') {
-                        // Run Maven build command (or Gradle if you're using that)
                         sh 'mvn clean install'
                     }
                 }
