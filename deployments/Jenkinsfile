@@ -1,92 +1,19 @@
 pipeline {
     agent any
 
-    environment {
-        AWS_REGION = 'us-east-1'              
-        ECR_REPO_NAME = 'sapient/weather-repo'          
-        IMAGE_TAG = "weather-cache-latest"                   
-        CLUSTER_NAME = 'my-ecs-cluster'        
-        SERVICE_NAME = 'my-ecs-service'        
-        AWS_ACCOUNT_ID = '127577525529'      
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'release', url: 'https://github.com/Artistic18/weather-app.git'
+                // Pull the latest code from GitHub repository
+                git 'https://github.com/Artistic18/weather-app.git'
             }
         }
 
-    //    stage('Install Dependencies') {
-    //         steps {
-    //             script {
-    //                 // Change directory to where your Java app is located
-    //                 dir('server/weather-cache-service') {
-    //                     // Run Maven build command (or Gradle if you're using that)
-    //                     sh 'mvn clean install'
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     stage('Build Docker Image') {
-    //         steps {
-    //             script {
-    //                 // Change directory to where the Dockerfile is (server/weather-cache-service)
-    //                 dir('server/weather-cache-service') {
-    //                     // Build Docker image and tag it
-    //                     sh """
-    //                     docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} .
-    //                     """
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     stage('Login to Amazon ECR') {
-    //         steps {
-    //             script {
-    //                 // Login to AWS ECR (requires AWS CLI configured with IAM permissions)
-    //                 sh """
-    //                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-    //                 """
-    //             }
-    //         }
-    //     }
-
-    //     stage('Push to ECR') {
-    //         steps {
-    //             script {
-    //                 // Push the Docker image to ECR
-    //                 sh """
-    //                 docker tag ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
-    //                 docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
-    //                 """
-    //             }
-    //         }
-    //     }
-
-        // stage('Deploy to ECS') {
-        //     steps {
-        //         script {
-        //             // Deploy the Docker image to ECS (update with your ECS task definition)
-        //             sh """
-        //             aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --force-new-deployment --image ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
-        //             """
-        //         }
-        //     }
-        // }
-    }
-
-    post {
-        always {
-            echo 'Pipeline execution completed.'
-        }
-        success {
-            echo 'Pipeline executed successfully.'
-        }
-        failure {
-            echo 'Pipeline execution failed.'
+        stage('Print') {
+            steps {
+                // Print the contents of the repository to verify the checkout
+                sh 'ls -al'
+            }
         }
     }
 }
