@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import static org.mockito.Mockito.*;
@@ -19,6 +21,9 @@ class WeatherCacheServiceImplTest {
     private StringRedisTemplate redisTemplate;
 
     @Mock
+    private ZSetOperations<String, String> zSetOperations;
+
+    @Mock
     private ApiConfig apiConfig;
 
     @InjectMocks
@@ -27,19 +32,18 @@ class WeatherCacheServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        when(redisTemplate.opsForZSet()).thenReturn(zSetOperations);
     }
 
     @Test
     void testFetchAndCacheWeatherData_Success() {
-        // Arrange
         Set<String> topCities = Set.of("City1", "City2");
-        when(redisTemplate.opsForZSet().reverseRange("cityAccessCount", 0, 49)).thenReturn(topCities);
+        when(zSetOperations.reverseRange("cityAccessCount", 0, 49)).thenReturn(topCities);
         when(apiConfig.getKey()).thenReturn("mock-api-key");
 
-        // Act
         Mono<Void> result = weatherCacheService.fetchAndCacheWeatherData();
-
-        // Assert
+        
         StepVerifier.create(result)
                 .expectComplete()
                 .verify();
