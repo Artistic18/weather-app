@@ -1,4 +1,4 @@
-package com.sapient.weather_cache_service.config;
+package com.hrishit.weather_cache_service.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

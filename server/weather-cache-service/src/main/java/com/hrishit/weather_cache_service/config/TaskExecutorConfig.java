@@ -1,4 +1,4 @@
-package com.sapient.weather_cache_service.config;
+package com.hrishit.weather_cache_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

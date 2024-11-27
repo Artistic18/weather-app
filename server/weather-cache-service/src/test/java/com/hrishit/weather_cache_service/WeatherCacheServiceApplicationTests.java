@@ -1,4 +1,4 @@
-package com.sapient.weather_cache_service;
+package com.hrishit.weather_cache_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

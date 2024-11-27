@@ -1,4 +1,4 @@
-package com.sapient.weather_cache_service.exceptions;
+package com.hrishit.weather_cache_service.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

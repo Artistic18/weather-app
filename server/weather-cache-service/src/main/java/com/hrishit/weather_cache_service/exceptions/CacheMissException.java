@@ -1,4 +1,4 @@
-package com.sapient.weather_cache_service.exceptions;
+package com.hrishit.weather_cache_service.exceptions;
 
 public class CacheMissException extends RuntimeException {
     public CacheMissException(String message) {
