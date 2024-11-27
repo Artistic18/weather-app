@@ -1,4 +1,4 @@
-package com.sapient.weather_svc.config;
+package com.hrishit.weather_svc.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

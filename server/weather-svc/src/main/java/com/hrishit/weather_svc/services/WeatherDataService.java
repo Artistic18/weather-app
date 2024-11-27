@@ -1,8 +1,8 @@
-package com.sapient.weather_svc.services;
+package com.hrishit.weather_svc.services;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.sapient.weather_svc.dto.WeatherResponseDTO;
+import com.hrishit.weather_svc.dto.WeatherResponseDTO;
 
 public interface WeatherDataService {
       /**
@@ -13,4 +13,11 @@ public interface WeatherDataService {
      */
 
      CompletableFuture<WeatherResponseDTO> getForecastData(String city);
+
+     /**
+     * Adds weather advice to the forecast data.
+     *
+     * @param weatherResponseDTO the weather response DTO to which advice will be added
+     */
+    void addAdviceToForecast(WeatherResponseDTO weatherResponseDTO);
 }

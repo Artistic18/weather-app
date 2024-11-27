@@ -19,9 +19,21 @@ pipeline {
             }
         }
 
-        stage('Check Maven Version') {
+        stage('Unit Test') {
             steps {
-                sh 'mvn -v'
+                script {
+                    dir('server/weather-cache-service') {
+                        sh """
+                        echo "Running Unit Tests"
+                        mvn test
+                        """
+                    }
+                }
+            }
+            post {
+                always {
+                    junit 'server/weather-cache-service/target/surefire-reports/*.xml'
+                }
             }
         }
 
@@ -32,19 +44,6 @@ pipeline {
                         sh """
                         echo "Running Maven build in server/weather-svc"
                         mvn clean install
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Verify Target Directory') {
-            steps {
-                script {
-                    dir('server/weather-svc') {
-                        sh """
-                        echo "Verifying target directory..."
-                        ls -l target || echo "ERROR: Target directory or JAR file not found!"
                         """
                     }
                 }
