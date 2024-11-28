@@ -33,7 +33,7 @@ public class WeatherCacheServiceImpl implements WeatherCacheService {
     private final WebClient webClient;
     private final ApiConfig apiConfig;
 
-    private static final long cacheTTL = 15;
+    private static final long cacheTTL = 24 * 60;
     private static final long max_cities_to_cache = 50;
 
     public WeatherCacheServiceImpl(StringRedisTemplate redisTemplate, WebClient webClient, ApiConfig apiConfig) {
