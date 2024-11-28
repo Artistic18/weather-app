@@ -2,10 +2,12 @@ package com.hrishit.weather_cache_service.services;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -48,6 +50,18 @@ public class WeatherCacheServiceImpl implements WeatherCacheService {
         final int MAX_CALLS_PER_MINUTE = 60;
         AtomicInteger apiCallCount = new AtomicInteger(0);
 
+        Set<String> cachedCities = redisTemplate.keys("weatherData:*").stream()
+                .map(key -> key.replace("weatherData:", ""))
+                .collect(Collectors.toSet());
+
+        Set<String> citiesToInvalidate = new HashSet<>(cachedCities);
+        citiesToInvalidate.removeAll(topCities);
+
+        for (String city : citiesToInvalidate) {
+            log.info("Invalidating cache for city: " + city);
+            redisTemplate.delete("weatherData:" + city);
+        }
+
         List<Mono<Void>> cityFetchMonos = new ArrayList<>();
 
         for (String city : topCities) {
@@ -66,13 +80,16 @@ public class WeatherCacheServiceImpl implements WeatherCacheService {
 
     private void fetchAndCacheCityData(String city, AtomicInteger apiCallCount) {
         fetchAndCacheSingleCityData(city)
-                .doOnTerminate(() -> apiCallCount.incrementAndGet())  
+                .doOnTerminate(() -> apiCallCount.incrementAndGet())
                 .onErrorResume(ex -> {
                     log.error("Error occurred while fetching and caching weather data for city: " + city, ex);
                     return Mono.empty();  
                 })
                 .subscribe(
-                    data -> log.info("Successfully fetched and cached data for city: " + city),
+                    data -> {
+                        log.info("Successfully fetched and cached data for city: " + city);
+                        redisTemplate.expire("weatherData:" + city, cacheTTL, TimeUnit.MINUTES);
+                    },
                     error -> log.error("Error occurred during subscribe: ", error) 
                 );
     }
@@ -101,17 +118,17 @@ public class WeatherCacheServiceImpl implements WeatherCacheService {
             return fetchAndCacheSingleCityData(city)
                 .onErrorResume(ex -> {
                     log.error("Error while fetching data for city: " + city);
-
                     return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "City not found"));
                 });
         }
 
+        redisTemplate.expire("weatherData:" + city, cacheTTL, TimeUnit.MINUTES);
         return Mono.just(cachedData);
     }
 
     Mono<String> fetchAndCacheSingleCityData(String city) {
         String url = String.format("/data/2.5/forecast?q=%s&appid=%s&cnt=32&units=metric", city, apiConfig.getKey());
-    
+        
         return webClient.get()
                 .uri(url)
                 .retrieve()
@@ -119,7 +136,7 @@ public class WeatherCacheServiceImpl implements WeatherCacheService {
                 .doOnTerminate(() -> trackCityAccess(city))
                 .flatMap(weatherData -> {
                     if (weatherData != null && !weatherData.isEmpty()) {
-                        log.info("Setting city in redis: " + city);
+                        log.info("Setting city in redis with TTL: " + city);
                         redisTemplate.opsForValue().set("weatherData:" + city, weatherData, cacheTTL, TimeUnit.MINUTES);
                         return Mono.just(weatherData);
                     } else {
