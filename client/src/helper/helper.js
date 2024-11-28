@@ -197,3 +197,58 @@ export const getSVGElementByTitle = (title) => {
 
   return weatherIcon ? weatherIcon.element : null;
 };
+
+export function segregateWeatherDataByDates(weatherList) {
+  function getDayAndDateString(dt) {
+    const date = new Date(dt * 1000);
+    return {
+      day: date.getDate(),
+      dateString: date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "long",
+        day: "numeric",
+      }),
+    };
+  }
+
+  const today = new Date();
+  const nextThreeDays = [1, 2, 3].map((offset) => {
+    const nextDay = new Date(today);
+    nextDay.setDate(today.getDate() + offset);
+    return nextDay.getDate();
+  });
+
+  const groupedData = {
+    [nextThreeDays[0]]: [],
+    [nextThreeDays[1]]: [],
+    [nextThreeDays[2]]: [],
+  };
+
+  weatherList.forEach((entry) => {
+    const { day, dateString } = getDayAndDateString(entry.dt);
+    if (groupedData[day]) {
+      groupedData[day].push({ ...entry, date: dateString });
+    }
+  });
+
+  return nextThreeDays.map((day) => groupedData[day]);
+}
+
+export function getHighestAndLowestTempForGroupedData(weatherList) {
+  function getHighestAndLowestTemp(dayWeatherData) {
+    const temps = dayWeatherData.map((entry) => entry.main.temp);
+    const highestTemp = Math.max(...temps);
+    const lowestTemp = Math.min(...temps);
+    return { highestTemp, lowestTemp };
+  }
+
+  const groupedData = segregateWeatherDataByDates(weatherList);
+
+  return groupedData.map((dayData) => {
+    const { highestTemp, lowestTemp } = getHighestAndLowestTemp(dayData);
+    return {
+      highestTemp,
+      lowestTemp,
+    };
+  });
+}

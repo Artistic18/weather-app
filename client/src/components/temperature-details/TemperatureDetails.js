@@ -1,20 +1,61 @@
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import "../../styles/style.scss";
+import { useWeather } from "@/contexts/WeatherContext";
+import {
+  segregateWeatherDataByDates,
+  getHighestAndLowestTempForGroupedData,
+} from "@/helper/helper";
 
-const TemperatureDetails = ({ weatherData, cityData }) => {
-  console.log("hrishit", weatherData, cityData);
-  const { main, visibility, wind } = weatherData;
+const TemperatureDetails = ({ weatherData, weatherDataList, cityData }) => {
+  const { date, selected } = useWeather();
+  const [currentWeatherData, setCurrentWeatherData] = useState(
+    weatherData.list[0]
+  );
+  const segregatedData = segregateWeatherDataByDates(weatherData.list);
+  const { main, visibility, wind } = weatherDataList;
   const { sunrise, sunset } = cityData;
+  const [temps, setTemps] = useState([]);
+
+  useEffect(() => {
+    setTemps(getHighestAndLowestTempForGroupedData(weatherData.list));
+  }, [weatherData]);
+
+  useEffect(() => {
+    const currentDateData = segregatedData.find((dayData) =>
+      dayData.some((entry) => entry.date.includes(date))
+    );
+
+    if (currentDateData) {
+      setCurrentWeatherData((prevData) => {
+        if (prevData !== currentDateData[0]) {
+          console.log("Found data for the date:", currentDateData);
+          return currentDateData[0];
+        }
+        return prevData;
+      });
+    } else {
+      console.log("No data found for the date, using fallback data");
+      setCurrentWeatherData({});
+    }
+  }, [date]);
+
+  const currentMain = currentWeatherData?.main || main;
+  const currentWind = currentWeatherData?.wind || wind;
 
   return (
     <div className="weather-container__temperature flex flex-col justify-center">
       <div className="flex flex-row items-center gap-5">
         <span className="weather-container__temperature-value">
-          {main.temp.toFixed(0)}°
+          {currentMain.temp.toFixed(0)}°
         </span>
         <div className="flex flex-col">
-          <span>Max: {main.temp_max.toFixed(0)}°</span>
-          <span>Min: {main.temp_min.toFixed(0)}°</span>
+          <span>
+            Max: {temps.length > 0 && temps[selected].highestTemp.toFixed(0)}°
+          </span>
+          <span>
+            Min: {temps.length > 0 && temps[selected].lowestTemp.toFixed(0)}°
+          </span>
         </div>
       </div>
       <div className="flex flex-row gap-12 ml-3">
@@ -58,7 +99,7 @@ const TemperatureDetails = ({ weatherData, cityData }) => {
             </svg>
             <span>Humidity</span>
           </div>
-          <span className="text-3xl">{main.humidity}%</span>
+          <span className="text-3xl">{currentMain.humidity}%</span>
         </div>
       </div>
       <div className="flex flex-col ml-3 mt-3">
@@ -80,7 +121,7 @@ const TemperatureDetails = ({ weatherData, cityData }) => {
           </svg>
           <span>Pressure</span>
         </div>
-        <span className="text-3xl">{main.pressure} hPa</span>
+        <span className="text-3xl">{currentMain.pressure} hPa</span>
       </div>
       <div className="flex flex-col ml-3 mt-3">
         <div className="flex flex-row gap-1 items-center">
@@ -102,15 +143,15 @@ const TemperatureDetails = ({ weatherData, cityData }) => {
           <span>Wind</span>
         </div>
         <span className="text-3xl">
-          {(wind.speed * 3.6).toFixed(0)} km/h{" "}
+          {(currentWind.speed * 3.6).toFixed(0)} km/h{" "}
           <span className="text-sm">speed</span>
         </span>
         <span className="text-3xl">
-          {(wind.gust * 3.6).toFixed(0)} km/h{" "}
+          {(currentWind.gust * 3.6).toFixed(0)} km/h{" "}
           <span className="text-sm">gust</span>
         </span>
         <span className="text-3xl">
-          {wind.deg}° <span className="text-sm">direction</span>
+          {currentWind.deg}° <span className="text-sm">direction</span>
         </span>
       </div>
       <div className="flex flex-col mt-3 ml-3">

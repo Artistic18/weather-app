@@ -1,45 +1,75 @@
-import React from "react";
-import { getSVGElementByTitle, SVGMap } from "@/helper/helper";
+"use client";
+import React, { useEffect, useState } from "react";
+import {
+  getSVGElementByTitle,
+  segregateWeatherDataByDates,
+  getHighestAndLowestTempForGroupedData,
+} from "@/helper/helper";
+import { useWeather } from "@/contexts/WeatherContext";
 
 const WeatherDescription = ({ weatherData }) => {
-  console.log("hris", weatherData);
-  let description = weatherData.list[0].weather[0].description;
-  description = description.charAt(0).toUpperCase() + description.slice(1);
-  let advice = weatherData.list[0].advice[0];
+  const { setDate, date, setSelected } = useWeather();
+  const [description, setDescription] = useState("");
+  const [segregatedData, setSegregatedData] = useState([]);
+  const [temps, setTemps] = useState([]);
+
+  // Default description and data when component loads
+  useEffect(() => {
+    setDescription(weatherData.list[0].weather[0].description);
+    setSegregatedData(segregateWeatherDataByDates(weatherData.list));
+    setTemps(getHighestAndLowestTempForGroupedData(weatherData.list));
+  }, [weatherData]);
+
+  // Update description when the date changes
+  useEffect(() => {
+    if (segregatedData.length > 0) {
+      const currentDateData = segregatedData.find((dayData) =>
+        dayData.some((entry) => entry.date.includes(date))
+      );
+      if (currentDateData) {
+        setDescription(currentDateData[0].weather[0].description);
+      }
+    }
+  }, [date, segregatedData]);
+
+  // Function to handle day click and set the selected date
+  const onClickDay = (date, index) => {
+    setDate(date);
+    setSelected(index);
+  };
 
   return (
     <div className="weather-description flex flex-col justify-center">
       <h1 className="weather-description__header">Weather Forecast</h1>
-      <p className="weather-description__text text-7xl">{description}</p>
+      <p className="weather-description__text text-7xl">
+        {description.charAt(0).toUpperCase() + description.slice(1)}
+      </p>
       <div className="flex flex-row mt-4 gap-2">
-        {advice && (
-          <div className="h-6 w-6">{getSVGElementByTitle("Rain")}</div>
+        {weatherData.list[0].advice[0] && (
+          <div className="h-6 w-6">{weatherData.list[0].advice[0]}</div>
         )}
-        <p>{advice}</p>
+        <p>{weatherData.list[0].advice}</p>
       </div>
       <div className="three-day-weather flex flex-col">
         <span className="text-lg">Upcoming Weather</span>
-        <div className="flex flex-row mt-5 gap-2 items-center">
-          <div className="h-7 w-7">{SVGMap[0].element}</div>
-          <div className="flex flex-col">
-            <span>Sat, November 15</span>
-            <span>H - 20° / L - 18°</span>
+        {segregatedData.map((dayData, index) => (
+          <div
+            key={index}
+            onClick={() => onClickDay(dayData[0].date, index)}
+            className="flex flex-row mt-3 gap-2 items-center cursor-pointer weather-next__text"
+          >
+            <div className="h-7 w-7">
+              {getSVGElementByTitle(dayData[0].weather[0].main)}
+            </div>
+            <div className="flex flex-col">
+              <span>{dayData[0].date}</span>
+              <span>
+                H : {temps[index].highestTemp.toFixed(0)}° / L :{" "}
+                {temps[index].lowestTemp.toFixed(0)}°
+              </span>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-row mt-5 gap-2 items-center">
-          <div className="h-7 w-7">{SVGMap[3].element}</div>
-          <div className="flex flex-col">
-            <span>Sun, November 16</span>
-            <span>H - 21° / L - 18°</span>
-          </div>
-        </div>
-        <div className="flex flex-row mt-5 gap-2 items-center">
-          <div className="h-7 w-7">{SVGMap[2].element}</div>
-          <div className="flex flex-col">
-            <span>Mon, November 17</span>
-            <span>H - 19° / L - 16°</span>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

@@ -24,6 +24,11 @@ const SearchBox = () => {
         type="text"
         value={cityInput}
         onChange={handleInputChange}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            handleSearch();
+          }
+        }}
         placeholder="Search a city"
       />
       <svg

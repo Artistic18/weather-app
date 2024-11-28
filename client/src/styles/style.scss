@@ -14,14 +14,40 @@ body {
 }
 
 .weather-container {
-  &.day {
+  &.day-clouds {
     background: url("../assets/cloudy-day.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
   }
-  &.night {
+  &.night-clouds {
     background: url("../assets/cloudy-night.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  &.day-clear {
+    background: url("../assets/clear-sky-day.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  &.night-clear {
+    background: url("../assets/clear-sky-night.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  &.day-rain {
+    background: url("../assets/rain.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  &.night-rain {
+    background: url("../assets/rain.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -135,4 +161,12 @@ body {
   align-self: flex-end;
   position: absolute;
   padding: 1rem;
+}
+
+.weather-next__text {
+  padding: 5px;
+}
+.weather-next__text:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }

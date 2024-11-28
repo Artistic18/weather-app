@@ -1,15 +1,36 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { getSVGElementByTitle } from "@/helper/helper";
+import {
+  getSVGElementByTitle,
+  segregateWeatherDataByDates,
+} from "@/helper/helper";
+import { useWeather } from "@/contexts/WeatherContext";
 
 const WeatherCarousel = ({ weatherData }) => {
+  const { date } = useWeather();
   const { list } = weatherData;
-  const visibleTemperatures = list.slice(0, 5 + 5);
+  const [visibleTemperatures, setVisibleTemperatues] = useState(
+    list.slice(0, 5 + 5)
+  );
 
   const parentRef = useRef(null);
   const scrollAmountRef = useRef(0);
 
   const [isMouseOver, setIsMouseOver] = useState(false);
+
+  useEffect(() => {
+    const segregatedData = segregateWeatherDataByDates(list);
+
+    const currentDateData = segregatedData.find((dayData) =>
+      dayData.some((entry) => entry.date.includes(date))
+    );
+
+    if (currentDateData) {
+      setVisibleTemperatues(currentDateData);
+    } else {
+      setVisibleTemperatues(list.slice(0, 5 + 5));
+    }
+  }, [date, list]);
 
   const handleWheel = useCallback(
     (e) => {
@@ -18,7 +39,16 @@ const WeatherCarousel = ({ weatherData }) => {
       e.preventDefault();
 
       const delta = e.deltaY;
-      scrollAmountRef.current += delta > 0 ? 50 : -50;
+
+      const parent = parentRef.current;
+      const maxScroll = parent.scrollWidth - parent.clientWidth;
+      const currentScroll = parent.scrollLeft;
+
+      if (delta > 0 && currentScroll < maxScroll) {
+        scrollAmountRef.current += 50;
+      } else if (delta < 0 && currentScroll > 0) {
+        scrollAmountRef.current -= 50;
+      }
 
       animateScroll(scrollAmountRef.current);
     },
@@ -32,6 +62,12 @@ const WeatherCarousel = ({ weatherData }) => {
 
     const animate = () => {
       currentScroll += (scrollValue - currentScroll) * 0.1;
+      parent.scrollLeft = currentScroll;
+
+      const maxScroll = parent.scrollWidth - parent.clientWidth;
+      if (currentScroll < 0) currentScroll = 0;
+      if (currentScroll > maxScroll) currentScroll = maxScroll;
+
       parent.scrollLeft = currentScroll;
 
       if (Math.abs(scrollValue - currentScroll) > 1) {
@@ -85,8 +121,8 @@ const WeatherCarousel = ({ weatherData }) => {
                       hour12: false,
                     })}
                   </span>
-                  <span>H - {temp_max.toFixed(0)}°</span>
-                  <span>L - {temp_min.toFixed(0)}°</span>
+                  <span>H : {temp_max.toFixed(0)}°</span>
+                  <span>L : {temp_min.toFixed(0)}°</span>
                 </div>
               </div>
             );

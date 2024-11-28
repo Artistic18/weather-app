@@ -9,6 +9,14 @@ export const WeatherProvider = ({ children }) => {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [date, setDate] = useState(
+    new Date().toLocaleString("en-US", {
+      weekday: "short",
+      month: "long",
+      day: "numeric",
+    })
+  );
+  const [selected, setSelected] = useState(0);
 
   const fetchWeatherData = async (city) => {
     try {
@@ -36,7 +44,17 @@ export const WeatherProvider = ({ children }) => {
 
   return (
     <WeatherContext.Provider
-      value={{ city, setCity, weatherData, loading, error }}
+      value={{
+        city,
+        setCity,
+        weatherData,
+        loading,
+        error,
+        date,
+        setDate,
+        selected,
+        setSelected,
+      }}
     >
       {children}
     </WeatherContext.Provider>

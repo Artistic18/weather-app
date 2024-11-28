@@ -1,8 +1,10 @@
 import React from "react";
 import "../../styles/style.scss";
+import { useWeather } from "@/contexts/WeatherContext";
 
 const LocationDetails = ({ weatherData }) => {
   const { name, country } = weatherData.city;
+  const { date } = useWeather();
   return (
     <div className="weather-container__location-box flex flex-col">
       <div className="flex flex-row items-center gap-2">
@@ -32,13 +34,7 @@ const LocationDetails = ({ weatherData }) => {
           {name}, {country}
         </span>
       </div>
-      <span className="weather-container__location-date">
-        {`(${new Date().toLocaleString("en-US", {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-        })})`}
-      </span>
+      <span className="weather-container__location-date">{date}</span>
     </div>
   );
 };
