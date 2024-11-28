@@ -30,6 +30,8 @@ You can try out the app here: [Weather App](https://release.d3i2l7qmc2yjab.ampli
 
 ## Architecture
 
+![Sequence Diagram](./diagram.svg)
+
 The Weather App is built with two core services:
 
 ### 1. weather-service
