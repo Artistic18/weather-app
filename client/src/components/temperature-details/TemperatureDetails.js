@@ -29,13 +29,11 @@ const TemperatureDetails = ({ weatherData, weatherDataList, cityData }) => {
     if (currentDateData) {
       setCurrentWeatherData((prevData) => {
         if (prevData !== currentDateData[0]) {
-          console.log("Found data for the date:", currentDateData);
           return currentDateData[0];
         }
         return prevData;
       });
     } else {
-      console.log("No data found for the date, using fallback data");
       setCurrentWeatherData({});
     }
   }, [date]);

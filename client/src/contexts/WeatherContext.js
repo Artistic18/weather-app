@@ -22,13 +22,11 @@ export const WeatherProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      console.log(`Fetching weather data for city: ${city}`);
 
       const response = await axios.get(`/api/weather`, {
         params: { city: city.toLowerCase() },
       });
 
-      console.log("Weather data response:", response.data);
       setWeatherData(response.data);
     } catch (err) {
       console.error("Error fetching weather data:", err);

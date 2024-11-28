@@ -13,14 +13,12 @@ const WeatherDescription = ({ weatherData }) => {
   const [segregatedData, setSegregatedData] = useState([]);
   const [temps, setTemps] = useState([]);
 
-  // Default description and data when component loads
   useEffect(() => {
     setDescription(weatherData.list[0].weather[0].description);
     setSegregatedData(segregateWeatherDataByDates(weatherData.list));
     setTemps(getHighestAndLowestTempForGroupedData(weatherData.list));
   }, [weatherData]);
 
-  // Update description when the date changes
   useEffect(() => {
     if (segregatedData.length > 0) {
       const currentDateData = segregatedData.find((dayData) =>
@@ -32,7 +30,6 @@ const WeatherDescription = ({ weatherData }) => {
     }
   }, [date, segregatedData]);
 
-  // Function to handle day click and set the selected date
   const onClickDay = (date, index) => {
     setDate(date);
     setSelected(index);
@@ -46,7 +43,9 @@ const WeatherDescription = ({ weatherData }) => {
       </p>
       <div className="flex flex-row mt-4 gap-2">
         {weatherData.list[0].advice[0] && (
-          <div className="h-6 w-6">{weatherData.list[0].advice[0]}</div>
+          <div className="h-6 w-6">
+            {getSVGElementByTitle(weatherData.list[0].weather[0].main)}
+          </div>
         )}
         <p>{weatherData.list[0].advice}</p>
       </div>
