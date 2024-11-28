@@ -5,7 +5,7 @@ public class SwaggerExamples {
         {
   "cod": "200",
   "message": 0,
-  "cnt": 24,
+  "cnt": 32,
   "list": [
     {
       "dt": 1732730400,

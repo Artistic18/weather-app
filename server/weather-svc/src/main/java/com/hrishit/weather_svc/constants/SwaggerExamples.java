@@ -639,7 +639,7 @@ public class SwaggerExamples {
       "advice": []
     }
   ],
-  "cnt": 24
+  "cnt": 32
 }
     """;
 }

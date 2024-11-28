@@ -110,7 +110,7 @@ public class WeatherCacheServiceImpl implements WeatherCacheService {
     }
 
     Mono<String> fetchAndCacheSingleCityData(String city) {
-        String url = String.format("/data/2.5/forecast?q=%s&appid=%s&cnt=24&units=metric", city, apiConfig.getKey());
+        String url = String.format("/data/2.5/forecast?q=%s&appid=%s&cnt=32&units=metric", city, apiConfig.getKey());
     
         return webClient.get()
                 .uri(url)
