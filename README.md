@@ -63,7 +63,7 @@ The weather-service acts as the intermediary between the frontend and the weathe
 
 The weather-cache-service is the backbone of the application’s performance, ensuring optimized and cost-effective data retrieval. It leverages Redis for caching weather data and employs intelligent invalidation strategies to maintain fresh and relevant data while minimizing the load on external APIs.
 
-**Swagger Documentation**: [View Swagger Documentation](http://54.175.96.105:8083/swagger-ui/index.html)
+**Swagger Documentation**: [View Swagger Documentation](http://54.175.96.105:8082/swagger-ui/index.html)
 
 **Key Responsibilities**:
 
@@ -182,4 +182,4 @@ npm run dev
 
 ## Conclusion
 
-The Weather App provides a smooth, efficient, and modern user experience for checking weather conditions in cities worldwide. Its backend services leverage powerful caching and rate-limiting strategies to optimize performance, while the frontend offers a responsive design for users on any device. With a cloud-based deployment infrastructure, the app is designed to scale and handle a large number of users.
+The Weather App provides a smooth, efficient, and modern user experience for checking weather conditions in cities worldwide. Its backend services leverage powerful caching and rate-limiting strategies to optimize performance, while the frontend offers a design for users. With a cloud-based deployment infrastructure, the app is designed to scale and handle a large number of users.
